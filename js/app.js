@@ -34,6 +34,7 @@ async function startCamera() {
     setTimeout(() => {
       hideOverlay();
       navigateTo('home');
+      showTutorial();
     }, 400);
 
     const hands = new Hands({
