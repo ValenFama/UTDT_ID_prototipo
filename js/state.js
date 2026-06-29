@@ -46,10 +46,24 @@ let hoveredMktCat    = null;
 let hoveredMktItem   = null;
 let hoveredMktBack   = null;
 
+// Hover buy popup
+let hoveredBuyBtn = null;
+
 // Estado mercado
 let currentMarketView   = 'home';   // 'home' | 'category'
 let selectedMarketCatId = null;
 let syncActive          = false;
+
+// Compra pendiente
+let buyPopupOpen       = false;
+let pendingPurchaseItem = null;
+
+// Tutorial
+let tutorialActive    = false;
+let leftHandDetected  = false;
+let rightHandDetected = false;
+
+let currentEditIndex = null;
 
 let toastTimer  = null;
 let currentTab  = 'días';
