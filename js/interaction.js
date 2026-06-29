@@ -11,6 +11,7 @@ function getPhotoUnderCursor(x, y)     { return hitTest('.photo-card.selectable'
 function getGnBtnUnderCursor(x, y)     { return hitTest('.gn-btn', x, y); }
 function getDeleteBtnUnderCursor(x, y) { return hitTest('#btn-delete', x, y); }
 function getPopupBtnUnderCursor(x, y)  { return hitTest('#delete-actions button', x, y); }
+function getBuyBtnUnderCursor(x, y)    { return hitTest('#buy-actions button', x, y); }
 function getGalleryTabUnderCursor(x, y){ return hitTest('.nav-tab:not(.disabled-tab)', x, y); }
 
 // Mercado
@@ -25,6 +26,7 @@ function clearHovers() {
   if (hoveredGnBtn)     { hoveredGnBtn.classList.remove('hovered');     hoveredGnBtn     = null; }
   if (hoveredDeleteBtn) { hoveredDeleteBtn.classList.remove('hovered'); hoveredDeleteBtn = null; }
   if (hoveredPopupBtn)  { hoveredPopupBtn.classList.remove('hovered');  hoveredPopupBtn  = null; }
+  if (hoveredBuyBtn)    { hoveredBuyBtn.classList.remove('hovered');    hoveredBuyBtn    = null; }
   if (hoveredMktFilter) { hoveredMktFilter.classList.remove('hovered'); hoveredMktFilter = null; }
   if (hoveredMktCat)    { hoveredMktCat.classList.remove('hovered');    hoveredMktCat    = null; }
   if (hoveredMktItem)   { hoveredMktItem.classList.remove('hovered');   hoveredMktItem   = null; }
@@ -33,6 +35,13 @@ function clearHovers() {
 
 // ── updateInteraction (cada frame) ───────────────────────────────────────────
 function updateInteraction() {
+  // Tutorial activo: bloquear toda interacción
+  if (tutorialActive) {
+    cursor.style.display = 'none';
+    clearHovers();
+    return;
+  }
+
   if (!handVisible) {
     cursor.style.display = 'none';
     clearHovers();
@@ -47,7 +56,7 @@ function updateInteraction() {
   // ── Sync activo: bloquear toda interacción ────────────────────────────────
   if (syncActive) return;
 
-  // ── Popup abierto: solo botones del popup ─────────────────────────────────
+  // ── Delete popup abierto ──────────────────────────────────────────────────
   if (popupOpen) {
     const popBtn = getPopupBtnUnderCursor(handX, handY);
     if (hoveredPopupBtn !== popBtn) {
@@ -60,11 +69,39 @@ function updateInteraction() {
       setTimeout(() => popBtn.classList.remove('pinched'), 250);
       if (popBtn.id === 'btn-confirm-delete') {
         closeDeletePopup();
+        if (currentEditIndex !== null) {
+          PHOTOS.splice(currentEditIndex, 1);
+          currentEditIndex = null;
+          buildPhotosGrid();
+        }
         navigateTo('gallery');
         showToast('Recuerdo eliminado');
       } else {
         closeDeletePopup();
         showToast('Cancelado');
+      }
+    }
+    return;
+  }
+
+  // ── Buy popup abierto ─────────────────────────────────────────────────────
+  if (buyPopupOpen) {
+    const buyBtn = getBuyBtnUnderCursor(handX, handY);
+    if (hoveredBuyBtn !== buyBtn) {
+      if (hoveredBuyBtn) hoveredBuyBtn.classList.remove('hovered');
+      hoveredBuyBtn = buyBtn;
+      if (hoveredBuyBtn) hoveredBuyBtn.classList.add('hovered');
+    }
+    if (pinching && !lastPinch && buyBtn) {
+      buyBtn.classList.add('pinched');
+      setTimeout(() => buyBtn.classList.remove('pinched'), 250);
+      if (buyBtn.id === 'btn-confirm-buy') {
+        const itemToSync = pendingPurchaseItem;
+        closeBuyPopup();
+        if (itemToSync) startSyncAnimation(itemToSync);
+      } else {
+        closeBuyPopup();
+        showToast('Compra cancelada');
       }
     }
     return;
@@ -175,7 +212,7 @@ function updateInteraction() {
         setTimeout(() => item.classList.remove('pinched'), 300);
         const itemData = MARKET_ITEMS[selectedMarketCatId]
           .find(i => i.id === item.dataset.itemId);
-        if (itemData) startSyncAnimation(itemData);
+        if (itemData) openBuyPopup(itemData);
       }
       return;
     }
@@ -184,30 +221,67 @@ function updateInteraction() {
 
 // ── MediaPipe results ─────────────────────────────────────────────────────────
 function onResults(results) {
-  const hands = results.multiHandLandmarks || [];
+  const landmarks  = results.multiHandLandmarks  || [];
+  const handedness = results.multiHandedness     || [];
 
-  if (hands.length > 0) {
-    handVisible = true;
-    const lm0 = hands[0];
-    handX = (1 - lm0[8].x) * window.innerWidth;
-    handY = lm0[8].y * window.innerHeight;
-    pinching = hands.length >= 2 ? dist(hands[1][4], hands[1][8]) < 0.07 : false;
+  // Identificar mano izquierda (click) y derecha (cursor) del usuario
+  // MediaPipe: 'Left' = mano izquierda del usuario, 'Right' = mano derecha
+  let leftHand  = null;
+  let rightHand = null;
 
-    if (!popupOpen && !syncActive && hands.some(lm => isPeaceSign(lm))) {
+  landmarks.forEach((lm, i) => {
+    const label = handedness[i]?.label;
+    if (label === 'Left')  leftHand  = lm;
+    else if (label === 'Right') rightHand = lm;
+  });
+
+  leftHandDetected  = leftHand  !== null;
+  rightHandDetected = rightHand !== null;
+
+  const bothVisible = leftHandDetected && rightHandDetected;
+
+  // Tutorial: mostrar mientras no estén ambas manos
+  if (bothVisible) {
+    updateTutorialState(true, true);
+    if (tutorialActive) hideTutorial();
+  } else {
+    if (!tutorialActive) showTutorial();
+    updateTutorialState(leftHandDetected, rightHandDetected);
+  }
+
+  // Cursor = mano derecha (índice)
+  handVisible = rightHandDetected;
+  if (rightHand) {
+    handX = (1 - rightHand[8].x) * window.innerWidth;
+    handY = rightHand[8].y * window.innerHeight;
+  }
+
+  // Click = pinch de mano izquierda (umbral reducido)
+  pinching = leftHand ? dist(leftHand[4], leftHand[8]) < 0.05 : false;
+
+  // Gesto de paz para volver (cualquier mano)
+  if (!popupOpen && !buyPopupOpen && !syncActive && !tutorialActive) {
+    const allHands = [leftHand, rightHand].filter(Boolean);
+    if (allHands.some(lm => isPeaceSign(lm))) {
       if (currentScreen === 'edit') {
         navigateTo('gallery'); showToast('✌️ Volviendo a galería');
       } else if (currentScreen === 'market' && currentMarketView === 'category') {
         openMarketHome(); showToast('✌️ Volviendo al mercado');
       }
     }
+  }
 
-    drawHud(hands);
-    setStatus(hands.length >= 2 ? 'Dos manos listas' : 'Mostrá la segunda mano para hacer click', hands.length >= 2 ? 'on' : '');
+  drawHud(leftHand, rightHand);
+
+  if (tutorialActive) {
+    setStatus(
+      !rightHandDetected ? 'Mostrá tu mano derecha (cursor)' :
+      !leftHandDetected  ? 'Mostrá tu mano izquierda (click)' :
+                           'Manos detectadas',
+      bothVisible ? 'on' : ''
+    );
   } else {
-    handVisible = false;
-    pinching    = false;
-    drawHud([]);
-    setStatus('Mostrá tus manos', '');
+    setStatus(bothVisible ? 'Dos manos listas' : 'Mostrá tus manos', bothVisible ? 'on' : '');
   }
 
   updateInteraction();
