@@ -24,7 +24,7 @@ body {
   position: fixed; inset: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 100;
+  z-index: 950;
 }
 
 /* ── Main glass panel ── */
@@ -32,14 +32,14 @@ body {
   position: fixed;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%) scale(0.96);
-  width: min(880px, 90vw);
-  max-height: calc(100vh - 155px);
+  width: min(700px, 56vw);
+  max-height: calc(100vh - 140px);
   background: rgba(255,255,255,0.10);
   backdrop-filter: blur(32px) saturate(1.8);
   -webkit-backdrop-filter: blur(32px) saturate(1.8);
   border: 1px solid rgba(255,255,255,0.22);
   border-radius: 28px;
-  padding: 28px 28px 20px;
+  padding: 28px 28px 22px;
   opacity: 0;
   transition: opacity 0.8s ease, transform 0.8s ease;
   z-index: 10;
@@ -214,7 +214,7 @@ body {
   background: rgba(255,255,255,0.85);
   border: 2px solid rgba(255,255,255,0.5);
   pointer-events: none;
-  z-index: 200;
+  z-index: 960;
   transform: translate(-50%, -50%);
   transition: width 0.15s, height 0.15s, background 0.15s;
   box-shadow: 0 0 18px rgba(255,255,255,0.5);
@@ -277,7 +277,7 @@ body {
 /* ── Gesture hint ── */
 #gesture-toast {
   position: fixed;
-  bottom: 90px; left: 50%;
+  bottom: 36px; left: 50%;
   transform: translateX(-50%);
   background: rgba(255,255,255,0.12);
   backdrop-filter: blur(20px) saturate(1.8);
@@ -379,52 +379,75 @@ body {
   justify-content: center;
   flex-direction: column;
   gap: 28px;
-  padding-bottom: 80px; /* clearance for global nav */
+  padding-left: 70px; /* clearance for left nav */
 }
 #screen-edit.active { display: flex; }
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   GLOBAL NAV
+   GLOBAL NAV — vertical izquierda
 ══════════════════════════════════════════════════════════════════════ */
 #global-nav {
   position: fixed;
-  bottom: 24px; left: 50%;
-  transform: translateX(-50%);
+  left: 48px; top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  gap: 2px;
+  flex-direction: column;
+  gap: 4px;
   background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.22);
-  border-radius: 40px;
-  padding: 6px 8px;
+  border-radius: 24px;
+  padding: 8px;
   z-index: 350;
   backdrop-filter: blur(28px) saturate(1.8);
   -webkit-backdrop-filter: blur(28px) saturate(1.8);
   box-shadow: 0 4px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
+  overflow: visible;
 }
 .gn-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 9px 20px;
-  border-radius: 30px;
-  font-size: 13px; font-weight: 500;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px;
+  border-radius: 14px;
   color: rgba(255,255,255,0.55);
   background: transparent; border: none; cursor: pointer;
-  transition: background 0.2s, color 0.2s, outline 0.15s, transform 0.15s;
+  transition: background 0.2s, color 0.2s, outline 0.15s;
   outline: 2px solid transparent;
   font-family: inherit;
+  flex-shrink: 0;
+}
+.gn-label {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(20,20,20,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 13px; font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 400;
 }
 .gn-btn.active {
   background: rgba(255,255,255,0.14);
-  color: #fff; font-weight: 600;
+  color: #fff;
 }
 .gn-btn.hovered {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.12);
   color: #fff;
-  outline: 2px solid rgba(255,255,255,0.3);
-  transform: scale(1.04);
+  outline: 2px solid rgba(255,255,255,0.32);
+}
+.gn-btn.hovered .gn-label {
+  opacity: 1;
 }
 .gn-btn.pinched {
-  transform: scale(0.94);
   background: rgba(255,220,100,0.2);
 }
 
@@ -603,7 +626,6 @@ body {
 ══════════════════════════════════════════════════════════════════════ */
 #delete-popup {
   position: fixed; inset: 0;
-  bottom: 88px; /* no pisar la global nav */
   display: flex; align-items: center; justify-content: center;
   z-index: 700;
   opacity: 0; pointer-events: none;
@@ -674,8 +696,8 @@ body {
   position: fixed;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%) scale(0.96);
-  width: min(960px, 94vw);
-  max-height: calc(100vh - 155px);
+  width: min(780px, 58vw);
+  max-height: calc(100vh - 140px);
   background: rgba(255,255,255,0.10);
   backdrop-filter: blur(32px) saturate(1.8);
   -webkit-backdrop-filter: blur(32px) saturate(1.8);
@@ -759,8 +781,8 @@ body {
 /* ── Category grid (home view) ── */
 #market-cat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 13px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 .mkt-cat-card {
   border-radius: 16px;
@@ -828,7 +850,7 @@ body {
 #market-items-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 13px;
+  gap: 18px;
 }
 .mkt-item-card {
   background: rgba(255,255,255,0.07);
@@ -907,3 +929,149 @@ body {
   transition: width 0.65s cubic-bezier(.4,0,.2,1);
 }
 #sync-status { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TUTORIAL OVERLAY
+══════════════════════════════════════════════════════════════════════ */
+#tutorial-overlay {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 800;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#tutorial-overlay.show { opacity: 1; pointer-events: all; }
+
+#tutorial-card {
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(48px) saturate(1.8);
+  -webkit-backdrop-filter: blur(48px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 28px;
+  padding: 40px 44px;
+  max-width: 440px; width: 88vw;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+  color: #fff;
+  text-align: center;
+  transform: scale(0.9) translateY(16px);
+  transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
+}
+#tutorial-overlay.show #tutorial-card { transform: scale(1) translateY(0); }
+
+#tutorial-title {
+  font-size: 24px; font-weight: 700;
+  letter-spacing: -0.02em; margin-bottom: 8px;
+}
+#tutorial-subtitle {
+  font-size: 14px; color: rgba(255,255,255,0.55);
+  margin-bottom: 28px; line-height: 1.5;
+}
+#tutorial-steps { display: flex; flex-direction: column; gap: 0; }
+
+.tut-step {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  transition: background 0.35s, border-color 0.35s;
+  text-align: left;
+}
+.tut-step.detected {
+  background: rgba(29,158,117,0.20);
+  border-color: rgba(29,158,117,0.4);
+}
+.tut-step-divider { height: 8px; }
+.tut-step-hand { font-size: 30px; line-height: 1; flex-shrink: 0; }
+.tut-step-info { flex: 1; }
+.tut-step-name { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+.tut-step-role { font-size: 12px; color: rgba(255,255,255,0.5); }
+.tut-step-badge {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: background 0.35s, color 0.35s, border-color 0.35s;
+  white-space: nowrap;
+}
+.tut-step.detected .tut-step-badge {
+  background: rgba(29,158,117,0.30);
+  color: #4CD96B;
+  border-color: rgba(77,217,107,0.4);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BUY CONFIRMATION POPUP
+══════════════════════════════════════════════════════════════════════ */
+#buy-popup {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 700;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+#buy-popup.open { opacity: 1; pointer-events: all; }
+
+#buy-card {
+  background: rgba(160,160,160,0.28);
+  backdrop-filter: blur(48px) saturate(1.6);
+  -webkit-backdrop-filter: blur(48px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 26px;
+  padding: 36px 36px 30px;
+  text-align: center; color: #fff;
+  max-width: 310px; width: 88vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  transform: scale(0.9) translateY(10px);
+  transition: transform 0.35s cubic-bezier(.2,.8,.3,1);
+}
+#buy-popup.open #buy-card { transform: scale(1) translateY(0); }
+
+#buy-icon-wrap {
+  width: 72px; height: 72px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+#buy-item-emoji { font-size: 36px; line-height: 1; }
+#buy-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+#buy-card p  { font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.5; margin-bottom: 8px; }
+#buy-card-price {
+  display: inline-block;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 16px; font-weight: 700;
+  margin-bottom: 24px;
+}
+#buy-actions { display: flex; gap: 10px; }
+#btn-confirm-buy {
+  flex: 1; padding: 13px 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.92);
+  color: #111; font-size: 14px; font-weight: 600;
+  border: none; cursor: pointer; font-family: inherit;
+  transition: background 0.2s, outline 0.15s, transform 0.15s;
+  outline: 2px solid transparent;
+}
+#btn-cancel-buy {
+  flex: 1; padding: 13px 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.2s, outline 0.15s, transform 0.15s;
+  outline: 2px solid transparent;
+}
+#btn-confirm-buy.hovered { background: #fff; outline: 2px solid rgba(255,255,255,0.7); }
+#btn-cancel-buy.hovered  { background: rgba(255,255,255,0.22); outline: 2px solid rgba(255,255,255,0.4); }
+#btn-confirm-buy.pinched, #btn-cancel-buy.pinched { transform: scale(0.94); }
