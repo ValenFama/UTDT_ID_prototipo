@@ -48,6 +48,7 @@ function buildPhotosGrid() {
 
 // ── Pantalla de edición ───────────────────────────────────────────────────────
 function openEditScreen(photoIndex) {
+  currentEditIndex = photoIndex;
   editPhoto.src = PHOTOS[photoIndex].file;
   navigateTo('edit');
 }
@@ -164,6 +165,48 @@ function startSyncAnimation(item) {
     syncActive = false;
     navigateTo('market');
   }, 3900);
+}
+
+// ── Tutorial ──────────────────────────────────────────────────────────────────
+function showTutorial() {
+  if (tutorialActive) return;
+  tutorialActive = true;
+  updateTutorialState(leftHandDetected, rightHandDetected);
+  document.getElementById('tutorial-overlay').classList.add('show');
+}
+
+function hideTutorial() {
+  if (!tutorialActive) return;
+  tutorialActive = false;
+  document.getElementById('tutorial-overlay').classList.remove('show');
+}
+
+function updateTutorialState(leftDetected, rightDetected) {
+  const stepLeft  = document.getElementById('tut-step-left');
+  const stepRight = document.getElementById('tut-step-right');
+  const badgeLeft  = document.getElementById('tut-badge-left');
+  const badgeRight = document.getElementById('tut-badge-right');
+
+  stepLeft.classList.toggle('detected', leftDetected);
+  stepRight.classList.toggle('detected', rightDetected);
+  badgeLeft.querySelector('span').textContent  = leftDetected  ? '✓ Detectada' : 'Esperando…';
+  badgeRight.querySelector('span').textContent = rightDetected ? '✓ Detectada' : 'Esperando…';
+}
+
+// ── Buy popup ─────────────────────────────────────────────────────────────────
+function openBuyPopup(item) {
+  pendingPurchaseItem = item;
+  buyPopupOpen = true;
+  document.getElementById('buy-item-emoji').textContent = item.emoji;
+  document.getElementById('buy-card-msg').textContent   = item.title;
+  document.getElementById('buy-card-price').textContent = '$' + item.price;
+  document.getElementById('buy-popup').classList.add('open');
+}
+
+function closeBuyPopup() {
+  buyPopupOpen = false;
+  pendingPurchaseItem = null;
+  document.getElementById('buy-popup').classList.remove('open');
 }
 
 // ── Helpers de UI ─────────────────────────────────────────────────────────────
