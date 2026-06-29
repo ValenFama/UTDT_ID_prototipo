@@ -17,29 +17,28 @@ function isOpenHand(lm) {
 }
 
 // ── HUD draw ──────────────────────────────────────────────────────────────────
-// hands[0] = cursor (mano de movimiento) — dibuja solo la punta del índice
-// hands[1] = click  (mano de acción)     — dibuja pulgar + índice + línea de pinch
-function drawHud(hands) {
+// leftHand  = mano izquierda (click)  — pulgar + índice + línea de pinch
+// rightHand = mano derecha (cursor)   — punto verde en índice
+function drawHud(leftHand, rightHand) {
   const W = hud.width, H = hud.height;
   hudCtx.clearRect(0, 0, W, H);
-  if (!hands || hands.length === 0) return;
 
-  // Mano cursor: punto verde en la punta del índice
-  const lm0 = hands[0];
-  hudCtx.beginPath();
-  hudCtx.arc((1 - lm0[8].x) * W, lm0[8].y * H, 7, 0, Math.PI * 2);
-  hudCtx.fillStyle = '#1D9E75';
-  hudCtx.globalAlpha = 0.85;
-  hudCtx.fill();
-  hudCtx.globalAlpha = 1;
+  // Mano derecha = cursor: punto verde en la punta del índice
+  if (rightHand) {
+    hudCtx.beginPath();
+    hudCtx.arc((1 - rightHand[8].x) * W, rightHand[8].y * H, 7, 0, Math.PI * 2);
+    hudCtx.fillStyle = '#1D9E75';
+    hudCtx.globalAlpha = 0.85;
+    hudCtx.fill();
+    hudCtx.globalAlpha = 1;
+  }
 
-  // Mano click: pulgar (azul) + índice (naranja) + línea de pinch
-  if (hands.length >= 2) {
-    const lm1 = hands[1];
+  // Mano izquierda = click: pulgar (azul) + índice (naranja) + línea de pinch
+  if (leftHand) {
     const dots = [{ i: 4, color: '#378ADD' }, { i: 8, color: '#E0783A' }];
     dots.forEach(({ i, color }) => {
       hudCtx.beginPath();
-      hudCtx.arc((1 - lm1[i].x) * W, lm1[i].y * H, pinching ? 10 : 6, 0, Math.PI * 2);
+      hudCtx.arc((1 - leftHand[i].x) * W, leftHand[i].y * H, pinching ? 10 : 6, 0, Math.PI * 2);
       hudCtx.fillStyle = color;
       hudCtx.globalAlpha = 0.85;
       hudCtx.fill();
@@ -48,8 +47,8 @@ function drawHud(hands) {
 
     if (pinching) {
       hudCtx.beginPath();
-      hudCtx.moveTo((1 - lm1[4].x) * W, lm1[4].y * H);
-      hudCtx.lineTo((1 - lm1[8].x) * W, lm1[8].y * H);
+      hudCtx.moveTo((1 - leftHand[4].x) * W, leftHand[4].y * H);
+      hudCtx.lineTo((1 - leftHand[8].x) * W, leftHand[8].y * H);
       hudCtx.strokeStyle = 'rgba(255,200,50,0.7)';
       hudCtx.lineWidth = 2.5;
       hudCtx.stroke();
